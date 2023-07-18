@@ -1,7 +1,6 @@
 import express from 'express'
 import jwt from "jsonwebtoken"
 import cors from "cors"
-import fs from "fs"
 import mongoose, { Mongoose, Schema } from 'mongoose'
 const app = express();
 app.use(express.json());
@@ -72,7 +71,7 @@ const authenticateUser = (req, res, next)=> {
 }
 
 app.get('/',(req,res)=>{
-  res.json({"message":"App deployed successfully"});
+  res.json({"message":"Coursify deployed successfully"});
 })
 // Admin routes
 app.post('/admin/signup', async(req, res) => {
