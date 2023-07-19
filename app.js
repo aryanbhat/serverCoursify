@@ -169,13 +169,14 @@ app.post('/users/login', async(req, res) => {
 
 app.get('/users/courses', authenticateUser, async(req, res) => {
     const courses = await Course.find({published:true});
-    res.status(200).json({ courses });
+    const user = await User.find({username : req.user.username})
+    res.status(200).json({ courses, purchasedCourses:user[0].purchasedCourses });
 });
 
 app.post('/users/courses/:courseId', authenticateUser, async(req, res) => {
   const id = req.params.courseId;
-  const course = await Course.findById(id);
-  if(course){
+  try{
+  const course = await Course.findOne({ _id : id});
   const username = req.user.username;
   const user = await User.findOne({username});
   if(user){
@@ -194,14 +195,13 @@ app.post('/users/courses/:courseId', authenticateUser, async(req, res) => {
       await user.save();
       res.status(201).json({message:'Course purchased successfully'})
    }
-
   }
   else{
     res.status(401).send({message: 'User does not exist'});
-  }
-  }
-  else{
-    res.status(401).send({messag: "Course does not exist"});
+   }
+}
+  catch(err){
+    res.status(400).json({'message': "Course is not found"});
   }
 });
 
