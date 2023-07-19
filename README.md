@@ -93,6 +93,10 @@ The project structure is organized as follows:
 └── package.json           # The dependencies are stored there
 ```
 
+## Demo
+
+It is live at Render : https://coursify.onrender.com
+
 ## Contributing
 
 Contributions are welcome! If you have any suggestions or find any issues, please create an issue or submit a pull request.
