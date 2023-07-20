@@ -158,7 +158,7 @@ app.post('/users/signup', async(req, res) => {
 
 app.post('/users/login', async(req, res) => {
   const { username, password } = req.headers;
-  const user = await User.findOne({username});
+  const user = await User.findOne({username,password});
   if (user) {
     const token = jwt.sign({ username, role: 'user' }, SECRETUSER, { expiresIn: '1h' });
     res.json({ message: 'Logged in successfully', token });
