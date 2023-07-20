@@ -214,6 +214,17 @@ app.get('/users/purchasedCourses', authenticateUser, async (req, res) => {
   }
 });
 
+app.get('/users/courses/:id',authenticateUser,async(req,res) => {
+  const id = (req.params.id);
+  const course = await Course.findById(id);
+  if(course){
+    res.status(201).json(course);
+  }
+  else{
+  res.status(401).send("No courses found");
+  }
+})
+
 app.listen(port, () => console.log('Server running on port 3000'));
 
 export default app;
