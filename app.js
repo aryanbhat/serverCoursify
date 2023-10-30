@@ -1,17 +1,22 @@
-import express from 'express'
-import jwt from "jsonwebtoken"
-import cors from "cors"
-import mongoose, { Mongoose, Schema } from 'mongoose'
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const cors = require('cors')
+const dotenv = require('dotenv');
+const {authenticateAdmin, authenticateUser} = require('./middleware/auth');
+const mongoose = require('mongoose');
+const {Mongoose,Schema} = require('mongoose');
+
+
+dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 
 
-mongoose.connect("mongodb+srv://arynabhat329:lameloball@cluster0.w7zpswg.mongodb.net/COURSIFY",{ useNewUrlParser:"true", useUnifiedTopology:"true"});
+mongoose.connect(process.env.MONGOURL,{ useNewUrlParser:"true", useUnifiedTopology:"true"});
 
 const port =  process.env.PORT || 3000;
-// Read data from file, or initialize to empty array if file does not exist
 
 const adminSchema = new Schema({
   "username":String,
@@ -32,47 +37,18 @@ const userSchema = new Schema({
   "purchasedCourses": [{ type:mongoose.Schema.Types.ObjectId, ref: 'Course'}]
 })
 
-const SECRETADMIN = 'e6e1ed755963a7724b8b1c16c6a18f66c51f1c9cf02d240ea28fae6da1969d96a9c11d91f63750a32afe463ad968ee747553447b018b655e7bbe6279998fa299';
-const SECRETUSER = '1c9dd059646391984d1466bd6e9ed16c40c149c92c1f785170f409d9121ec13e88963c619fb18446e86534bd5b98db2d154bb1e53ae245fa5db889e335712aa2'
+
 const Admin = mongoose.model('Admin',adminSchema);
 const User = mongoose.model('User',userSchema);
 const Course = mongoose.model('Course',courseSchema);
 
-const authenticateJwt = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-    jwt.verify(token, SECRETADMIN, (err, user) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(401);
-  }
-};
 
-const authenticateUser = (req, res, next)=> {
-  const authHeader = req.headers.authorization;
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-    jwt.verify(token, SECRETUSER, (err, user) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(401);
-  }
-}
 
 app.get('/',(req,res)=>{
   res.json({"message":"Coursify deployed successfully"});
 })
+
+
 // Admin routes
 app.post('/admin/signup', async(req, res) => {
   const { username, password } = req.body;
@@ -82,7 +58,7 @@ app.post('/admin/signup', async(req, res) => {
   } else {
     const newAdmin =  new Admin({ username, password });
      await newAdmin.save();
-    const token = jwt.sign({ username, role: 'admin' }, SECRETADMIN, { expiresIn: '1h' });
+    const token = jwt.sign({ username, role: 'admin' }, process.env.SECRETADMIN, { expiresIn: '1h' });
     res.json({ message: 'Admin created successfully', token });
   }
 });
@@ -90,25 +66,25 @@ app.post('/admin/login', async(req, res) => {
   const { username, password } = req.headers;
   const admin = await Admin.findOne({username,password});
   if (admin) {
-    const token = jwt.sign({ username, role: 'admin' }, SECRETADMIN, { expiresIn: '1h' });
+    const token = jwt.sign({ username, role: 'admin' }, process.env.SECRETADMIN, { expiresIn: '1h' });
     res.json({ message: 'Logged in successfully', token });
   } else {
     res.status(403).json({ message: 'Invalid username or password' });
   }
 });
 
-app.post('/admin/courses', authenticateJwt, async(req, res) => {
+app.post('/admin/courses', authenticateAdmin, async(req, res) => {
   const newCourse = new Course(req.body);
   await newCourse.save();
   res.status(201).json({ message: 'Course created successfully',courseId:newCourse.id,username:req.user});
 });
 
-app.get('/admin/courses', authenticateJwt, async(req, res) => {
+app.get('/admin/courses', authenticateAdmin, async(req, res) => {
   const courses = await Course.find({});
   res.json({ courses });
 });
 
-app.get('/admin/courses/:id',authenticateJwt,async(req,res) => {
+app.get('/admin/courses/:id',authenticateAdmin,async(req,res) => {
   const id = (req.params.id);
   const course = await Course.findById(id);
   if(course){
@@ -118,7 +94,7 @@ app.get('/admin/courses/:id',authenticateJwt,async(req,res) => {
   res.status(401).send("No courses found");
   }
 })
-app.put('/admin/courses/:courseId', authenticateJwt, async(req, res) => {
+app.put('/admin/courses/:courseId', authenticateAdmin, async(req, res) => {
   const course  = await Course.findByIdAndUpdate(req.params.courseId,req.body,{new: true})
   if (course) {
     res.json({ message: 'Course updated successfully' });
@@ -130,7 +106,7 @@ app.put('/admin/courses/:courseId', authenticateJwt, async(req, res) => {
 
 
 
-app.delete('/admin/courses/:courseId', authenticateJwt, async(req,res) => {
+app.delete('/admin/courses/:courseId', authenticateAdmin, async(req,res) => {
   const course = await Course.findByIdAndDelete(req.params.courseId);
   if(course){
     res.status(200).json(`course ID ${course.id} is deleted`);
@@ -151,7 +127,7 @@ app.post('/users/signup', async(req, res) => {
   else {
     const newUser = new User({username,password});
     await newUser.save();
-    const token = jwt.sign({ username, role: 'user' }, SECRETUSER, { expiresIn: '1h' });
+    const token = jwt.sign({ username, role: 'user' }, process.env.SECRETUSER, { expiresIn: '1h' });
     res.json({ message: 'User created successfully', token });
   }
 });
@@ -160,7 +136,7 @@ app.post('/users/login', async(req, res) => {
   const { username, password } = req.headers;
   const user = await User.findOne({username,password});
   if (user) {
-    const token = jwt.sign({ username, role: 'user' }, SECRETUSER, { expiresIn: '1h' });
+    const token = jwt.sign({ username, role: 'user' }, process.env.SECRETUSER, { expiresIn: '1h' });
     res.json({ message: 'Logged in successfully', token });
   } else {
     res.status(403).json({ message: 'Invalid username or password' });
@@ -227,4 +203,3 @@ app.get('/users/courses/:id',authenticateUser,async(req,res) => {
 
 app.listen(port, () => console.log('Server running on port 3000'));
 
-export default app;
