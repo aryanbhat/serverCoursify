@@ -5,12 +5,14 @@ const dotenv = require('dotenv');
 const {authenticateAdmin, authenticateUser} = require('./middleware/auth');
 const mongoose = require('mongoose');
 const {Mongoose,Schema} = require('mongoose');
-
+const path = require('path');
 
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 
 const sahilData = [
@@ -19,7 +21,7 @@ const sahilData = [
     data:"15 Apr 21, 12:30 PM",
     num_of_files:7,
     expert_time:"30 min",
-    logo:__dirname+'\pubic\EY.png',
+    logo:'https://coursify.onrender.com/EY.png',
     child:[
       {
         description:"File name goes here on per original docs",
@@ -91,7 +93,7 @@ const sahilData = [
     data:"11 Apr 21, 1:30 PM",
     num_of_files:10,
     expert_time:"45 min",
-    logo:__dirname+'\pubic\mckinsey.png',
+    logo:"https://coursify.onrender.com/mckinsey.png",
     child:[
       {
         description:"update the translation service",
