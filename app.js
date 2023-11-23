@@ -13,6 +13,156 @@ app.use(express.json());
 app.use(cors());
 
 
+const sahilData = [
+  {
+    name:"Ahmed Abdulaziz",
+    data:"15 Apr 21, 12:30 PM",
+    num_of_files:7,
+    expert_time:"30 min",
+    logo:__dirname+'\pubic\EY.png',
+    child:[
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      },
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      },
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      },
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      },
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      },
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      },
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      },
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      },
+      {
+        description:"File name goes here on per original docs",
+        words:15000,
+        para:100,
+        date:"15 Apr 21, 12:30 PM",
+        expert_time:'20 min'
+      }
+    ]
+  },
+  {
+    name:"Abdul Rashid",
+    data:"11 Apr 21, 1:30 PM",
+    num_of_files:10,
+    expert_time:"45 min",
+    logo:__dirname+'\pubic\mckinsey.png',
+    child:[
+      {
+        description:"update the translation service",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      },
+      {
+        description:"update the translation service",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      },
+      {
+        description:"update the translation service",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      },
+      {
+        description:"update the translation service",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      },
+      {
+        description:"update the translation services",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      },
+      {
+        description:"update the translation service",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      },
+      {
+        description:"update the translation service",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      },
+      {
+        description:"update the translation service",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      },
+      {
+        description:"update the translation service",
+        words:12000,
+        para:80,
+        date:"11 Apr 21, 1:30 PM",
+        expert_time:'30 min'
+      }
+    ]
+  }
+]
+
+
+
+
 
 mongoose.connect(process.env.MONGOURL,{ useNewUrlParser:"true", useUnifiedTopology:"true"});
 
@@ -48,7 +198,9 @@ app.get('/',(req,res)=>{
   res.json({"message":"Coursify deployed successfully"});
 })
 
-
+app.get('/getdata',(req,res)=>{
+  res.json(sahilData);
+})
 // Admin routes
 app.post('/admin/signup', async(req, res) => {
   const { username, password } = req.body;
@@ -93,7 +245,8 @@ app.get('/admin/courses/:id',authenticateAdmin,async(req,res) => {
   else{
   res.status(401).send("No courses found");
   }
-})
+});
+
 app.put('/admin/courses/:courseId', authenticateAdmin, async(req, res) => {
   const course  = await Course.findByIdAndUpdate(req.params.courseId,req.body,{new: true})
   if (course) {
