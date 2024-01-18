@@ -47,9 +47,7 @@ app.get('/',(req,res)=>{
   res.json({"message":"Coursify deployed successfully"});
 })
 
-app.get('/getdata',(req,res)=>{
-  res.json(sahilData);
-})
+
 // Admin routes
 app.post('/admin/signup', async(req, res) => {
   const { username, password } = req.body;
